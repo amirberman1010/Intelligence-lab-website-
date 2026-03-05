@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buildots Intelligence Lab</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+:root{
+  --lime:#D4E94F;--lime-h:#C2D840;--lime-bg:rgba(212,233,79,0.1);
+  --blk:#1C1C1C;--blk2:#232323;--blk3:#2C2C2C;--blk4:#3A3A3A;
+  --g800:#444;--g700:#5A5A5A;--g600:#6E6E6E;--g500:#8C8C8C;--g400:#ABABAB;--g300:#C8C8C8;--g200:#DFDFDF;--g150:#EAEAEA;--g100:#F2F2F2;--g75:#F5F5F5;--g50:#F9F9F9;--wh:#FFF;
+  --purple:#7B6FE8;--purple-bg:rgba(123,111,232,0.06);
+  --red:#D94A4A;--green:#2D9D5A;
+  --warm:#F6F4F0;--warm2:#EDEBE5;
+  --r:10px;--r2:14px;--r3:16px;
+  --max:1280px;--px:clamp(20px,4vw,56px);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--wh);color:var(--blk);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ═══ NAV ═══ */
+.nav-wrap{position:sticky;top:0;z-index:200;background:var(--wh);border-bottom:1px solid var(--g150);}
+.nav-main{height:64px;display:flex;align-items:center;padding:0 var(--px);max-width:var(--max);margin:0 auto;}
+.n-logo{display:flex;align-items:center;gap:2px;font-weight:900;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;color:var(--blk);border:2.5px solid var(--blk);padding:4px 9px 3px;border-radius:3px;line-height:1;position:relative;text-decoration:none;flex-shrink:0;}
+.n-logo::after{content:'+';color:var(--lime);font-weight:900;font-size:15px;position:absolute;top:-6px;right:-8px;}
+.n-sep{width:1px;height:26px;background:var(--g200);margin:0 14px;flex-shrink:0;}
+.n-lab{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.n-lab-mark{width:24px;height:24px;flex-shrink:0;}
+.n-lab-text{font-size:14px;font-weight:700;color:var(--blk);letter-spacing:-0.01em;}
+.n-center{display:flex;gap:32px;align-items:center;margin:0 auto;}
+.n-center a{color:var(--g600);text-decoration:none;font-size:13px;font-weight:500;transition:color 0.15s;cursor:pointer;}
+.n-center a:hover,.n-center a.on{color:var(--blk);}
+.n-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.btn-ol2{background:none;border:1.5px solid var(--g200);color:var(--blk);font-size:12px;font-weight:600;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.btn-ol2:hover{border-color:var(--g400);}
+.btn-lime{background:var(--lime);color:var(--blk);font-size:12px;font-weight:700;padding:9px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;transition:background 0.12s;}
+.btn-lime:hover{background:var(--lime-h);}
+
+/* ═══ SEARCH ═══ */
+.n-search{position:relative;display:flex;align-items:center;}
+.n-search-btn{background:none;border:1px solid var(--g200);color:var(--g500);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.12s;}
+.n-search-btn:hover{border-color:var(--g400);color:var(--blk);}
+.n-search-box{position:absolute;top:50%;right:0;transform:translateY(-50%);width:0;opacity:0;pointer-events:none;background:var(--wh);border:1px solid var(--g200);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.08);display:flex;align-items:center;padding:0;transition:all 0.2s ease;overflow:hidden;flex-wrap:wrap;z-index:300;}
+.n-search-box.open{width:420px;opacity:1;pointer-events:all;padding:10px 14px;}
+.n-search-icon{flex-shrink:0;color:var(--g400);margin-right:8px;}
+.n-search-in{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;color:var(--blk);background:none;min-width:0;}
+.n-search-in::placeholder{color:var(--g400);}
+.n-search-close{background:none;border:none;color:var(--g400);font-size:14px;cursor:pointer;padding:4px;flex-shrink:0;transition:color 0.1s;}
+.n-search-close:hover{color:var(--blk);}
+.n-search-results{width:100%;max-height:280px;overflow-y:auto;margin-top:0;display:none;}
+.n-search-results.show{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--g100);}
+.nsr-item{display:flex;align-items:flex-start;gap:10px;padding:10px 4px;border-radius:8px;cursor:pointer;transition:background 0.1s;}
+.nsr-item:hover{background:var(--g75);}
+.nsr-tag{font-size:8px;font-weight:700;padding:2px 6px;border-radius:100px;text-transform:uppercase;letter-spacing:0.04em;flex-shrink:0;margin-top:2px;}
+.nsr-text{flex:1;min-width:0;}
+.nsr-title{font-size:13px;font-weight:600;color:var(--blk);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nsr-desc{font-size:11px;color:var(--g500);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nsr-empty{font-size:13px;color:var(--g400);text-align:center;padding:16px 0;}
+
+/* ═══ CATEGORY NAV ═══ */
+.cat-nav{border-bottom:1px solid var(--g150);background:var(--wh);}
+.cat-inner{max-width:var(--max);margin:0 auto;padding:0 var(--px);display:flex;align-items:center;height:48px;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.cat-inner::-webkit-scrollbar{display:none;}
+.cat-label{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;margin-right:2px;flex-shrink:0;}
+.cat-chip{background:none;border:1px solid transparent;color:var(--g600);font-size:12px;font-weight:500;padding:4px 12px;border-radius:100px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.12s;flex-shrink:0;}
+.cat-chip:hover{color:var(--blk);background:var(--g100);}
+.cat-chip.on{background:var(--blk);color:var(--wh);border-color:var(--blk);}
+.cat-div{width:1px;height:18px;background:var(--g200);margin:0 4px;flex-shrink:0;}
+
+section{display:none}section.active{display:block}
+.si{max-width:var(--max);margin:0 auto;padding:0 var(--px);}
+
+/* ═══ HERO ═══ */
+.hero{padding:clamp(56px,8vw,96px) 0 clamp(48px,6vw,72px);}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,4vw,64px);align-items:center;}
+.hero-inner{max-width:520px;}
+.lab-brand{display:flex;align-items:center;gap:14px;margin-bottom:clamp(24px,3vw,36px);}
+.lab-logo{width:36px;height:36px;flex-shrink:0;}
+.lab-brand-text{display:flex;flex-direction:column;gap:1px;}
+.lab-brand-name{font-size:16px;font-weight:800;color:var(--blk);letter-spacing:-0.01em;line-height:1.2;}
+.lab-brand-by{font-size:11px;font-weight:500;color:var(--g500);letter-spacing:0.02em;}
+/* Hero visual */
+.hero-vis{position:relative;display:flex;align-items:center;justify-content:center;min-height:380px;}
+.hv-card{background:var(--blk);border-radius:var(--r3);padding:28px 24px 20px;width:100%;max-width:420px;position:relative;overflow:hidden;}
+.hv-card::before{content:'';position:absolute;top:-30%;right:-20%;width:50%;height:100%;background:radial-gradient(ellipse,rgba(123,111,232,0.1),transparent 70%);pointer-events:none;}
+.hv-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.hv-title{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:0.1em;}
+.hv-badge{font-size:9px;font-weight:700;color:var(--lime);background:rgba(212,233,79,0.12);padding:3px 8px;border-radius:100px;letter-spacing:0.04em;}
+.hv-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;opacity:0;animation:hvFade 0.4s ease forwards;}
+.hv-row:nth-child(1){animation-delay:0.2s}.hv-row:nth-child(2){animation-delay:0.35s}.hv-row:nth-child(3){animation-delay:0.5s}.hv-row:nth-child(4){animation-delay:0.65s}.hv-row:nth-child(5){animation-delay:0.8s}
+@keyframes hvFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.hv-label{font-size:10px;color:var(--g500);width:70px;text-align:right;flex-shrink:0;font-weight:500;}
+.hv-track{flex:1;height:20px;position:relative;display:flex;align-items:center;}
+.hv-bar-bg{position:absolute;left:0;height:4px;background:var(--blk4);border-radius:2px;width:100%;}
+.hv-bar{position:absolute;left:0;height:4px;border-radius:2px;transition:width 0.6s ease;}
+.hv-dot-p{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px rgba(123,111,232,0.4);transition:left 0.6s ease;}
+.hv-dot-a{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--blk);box-shadow:0 0 6px rgba(217,74,74,0.3);transition:left 0.6s ease;}
+.hv-val{font-size:10px;font-weight:700;color:var(--g400);width:36px;text-align:right;flex-shrink:0;}
+.hv-footer{display:flex;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--blk3);}
+.hv-legend{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--g500);}
+.hv-legend-d{width:8px;height:8px;border-radius:50%;}
+.hv-glow{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:80%;height:40px;background:radial-gradient(ellipse,rgba(123,111,232,0.12),transparent);pointer-events:none;filter:blur(12px);}
+
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;}.hero-vis{min-height:280px;margin-top:20px;}
+}
+.h1{font-size:clamp(40px,6vw,72px);font-weight:900;line-height:1.04;letter-spacing:-0.04em;margin-bottom:20px;}
+.h-p{font-size:clamp(16px,1.3vw,19px);color:var(--g600);line-height:1.75;margin-bottom:clamp(28px,3vw,40px);max-width:520px;}
+.h-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-blk{display:inline-flex;align-items:center;gap:8px;background:var(--blk);color:var(--wh);font-weight:600;padding:13px 24px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.12s;}
+.btn-blk:hover{background:var(--blk2);}
+.btn-blk svg{transition:transform 0.12s;}.btn-blk:hover svg{transform:translateX(3px);}
+.btn-ol{background:none;color:var(--blk);font-weight:600;padding:12px 22px;border-radius:8px;border:1.5px solid var(--g200);cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.12s;}
+.btn-ol:hover{border-color:var(--g400);}
+
+/* ═══ FEATURED CONTENT (bento) ═══ */
+.feat{padding-bottom:clamp(48px,6vw,80px);}
+.feat-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;min-height:420px;}
+.feat-main{background:var(--blk);border-radius:var(--r3);padding:clamp(28px,3vw,40px);display:flex;flex-direction:column;color:var(--wh);position:relative;overflow:hidden;}
+.feat-main::before{content:'';position:absolute;top:-40%;right:-20%;width:60%;height:120%;background:radial-gradient(ellipse,rgba(123,111,232,0.08),transparent 70%);pointer-events:none;}
+.fm-tag{font-size:10px;font-weight:700;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:auto;}
+.fm-h{font-size:clamp(22px,2.5vw,32px);font-weight:800;line-height:1.2;letter-spacing:-0.02em;margin-bottom:12px;max-width:440px;position:relative;}
+.fm-p{font-size:14px;color:var(--g400);line-height:1.6;margin-bottom:20px;max-width:400px;position:relative;}
+.fm-meta{font-size:11px;color:var(--g500);position:relative;}
+.fm-cta{display:inline-flex;align-items:center;gap:6px;color:var(--lime);font-size:12px;font-weight:600;margin-top:12px;cursor:pointer;position:relative;}
+.feat-side{display:grid;grid-template-rows:1fr 1fr;gap:14px;}
+.feat-card{background:var(--g75);border:1px solid var(--g150);border-radius:var(--r3);padding:clamp(20px,2.5vw,28px);display:flex;flex-direction:column;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.feat-card:hover{border-color:var(--g300);box-shadow:0 6px 24px rgba(0,0,0,0.04);transform:translateY(-2px);}
+.fc-tag{font-size:10px;font-weight:700;color:var(--purple);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:auto;}
+.fc-h{font-size:clamp(16px,1.5vw,20px);font-weight:800;line-height:1.25;letter-spacing:-0.01em;margin-bottom:6px;}
+.fc-p{font-size:13px;color:var(--g600);line-height:1.5;}
+.fc-stat{font-size:clamp(28px,3vw,40px);font-weight:900;color:var(--red);letter-spacing:-0.03em;margin-bottom:4px;}
+
+/* ═══ DATA EXPLORER (mid-page) ═══ */
+.explorer{background:var(--g100);border-top:1px solid var(--g150);border-bottom:1px solid var(--g150);padding:clamp(48px,6vw,80px) 0;}
+.exp-split{display:grid;grid-template-columns:380px 1fr;gap:clamp(32px,4vw,56px);align-items:start;}
+.exp-text .exp-ey{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blk);border:1.5px solid var(--blk);padding:5px 12px 4px;border-radius:4px;margin-bottom:20px;}
+.exp-text h2{font-size:clamp(28px,3.5vw,44px);font-weight:900;line-height:1.08;letter-spacing:-0.03em;margin-bottom:16px;}
+.exp-text p{font-size:15px;color:var(--g600);line-height:1.8;margin-bottom:24px;}
+.exp-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+.exp-st{background:var(--wh);border-radius:var(--r);padding:16px;border:1px solid var(--g150);}
+.exp-sv{font-size:28px;font-weight:900;letter-spacing:-0.02em;line-height:1;}
+.exp-sv.neg{color:var(--red);}
+.exp-sl{font-size:10px;color:var(--g500);margin-top:5px;font-weight:500;}
+.exp-chart-wrap{background:var(--wh);border-radius:var(--r3);padding:clamp(20px,2.5vw,32px);border:1px solid var(--g150);}
+.cc{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.tg{display:inline-flex;background:var(--g75);border:1px solid var(--g150);border-radius:8px;overflow:hidden;padding:2px;}
+.tb{padding:5px 11px;font-size:10px;font-weight:600;border:none;background:transparent;color:var(--g500);cursor:pointer;transition:all 0.1s;font-family:inherit;white-space:nowrap;border-radius:6px;}
+.tb.on{background:var(--blk);color:var(--wh);}
+.tb:hover:not(.on){color:var(--blk);}
+.cl{display:flex;gap:12px;font-size:10px;color:var(--g500);margin-bottom:16px;align-items:center;flex-wrap:wrap;}
+.cl-i{display:flex;align-items:center;gap:4px;}
+.cl-d{width:8px;height:8px;border-radius:50%;}
+.cl-bar{width:14px;height:3px;border-radius:2px;}
+/* Chart rows */
+.cr{display:grid;grid-template-columns:110px 1fr 40px;align-items:center;gap:10px;margin-bottom:10px;padding:4px 6px;border-radius:6px;transition:background 0.1s;cursor:pointer;}
+.cr:hover{background:var(--g75);}
+.cr-l{font-size:11px;color:var(--g700);text-align:right;font-weight:500;}
+.cr-t{position:relative;height:30px;}
+.cr-rg{position:absolute;top:12px;height:6px;background:var(--g200);border-radius:3px;transition:all 0.12s;}
+.cr:hover .cr-rg{background:var(--g300);}
+.cr-50{position:absolute;top:4px;width:22px;height:22px;border-radius:50%;background:var(--purple);transform:translateX(-50%);z-index:3;box-shadow:0 2px 8px rgba(123,111,232,0.3);transition:all 0.12s;}
+.cr:hover .cr-50{transform:translateX(-50%) scale(1.1);}
+.cr-a{position:absolute;top:7px;width:16px;height:16px;border-radius:50%;background:var(--red);transform:translateX(-50%);z-index:4;border:2px solid var(--wh);box-shadow:0 1px 4px rgba(217,74,74,0.3);transition:all 0.12s;}
+.cr:hover .cr-a{transform:translateX(-50%) scale(1.1);}
+.cr-v{position:absolute;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap;opacity:0;transition:opacity 0.1s;pointer-events:none;}
+.cr-v.top{bottom:calc(100% + 1px);color:var(--purple);}
+.cr-v.bot{top:calc(100% + 0px);color:var(--red);}
+.cr:hover .cr-v{opacity:1;}
+.cr-sf{font-size:10px;font-weight:700;}
+.cr-sf.neg{color:var(--red);}.cr-sf.pos{color:var(--green);}
+.cx{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;margin-top:4px;padding-top:6px;border-top:1px solid var(--g100);}
+.cx-i{display:flex;justify-content:space-between;}.cx-i span{font-size:9px;color:var(--g400);}
+
+/* Tooltip */
+.tt{position:fixed;background:var(--wh);border:1px solid var(--g200);border-radius:12px;padding:14px 18px;font-size:12px;z-index:999;pointer-events:none;box-shadow:0 10px 36px rgba(0,0,0,0.1);display:none;min-width:200px;line-height:1.5;}
+.tt-n{font-weight:700;font-size:13px;margin-bottom:8px;}
+.tt-r{display:flex;justify-content:space-between;gap:18px;padding:2px 0;}
+.tt-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+
+/* ═══ MANIFESTO ═══ */
+.mf{padding:clamp(60px,8vw,100px) 0;}
+.mf-inner{text-align:center;max-width:720px;margin:0 auto;}
+.mf-ey{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blk);border:1.5px solid var(--blk);padding:5px 12px 4px;border-radius:4px;margin-bottom:clamp(18px,2vw,28px);}
+.mf-h{font-size:clamp(28px,4vw,48px);font-weight:900;line-height:1.1;letter-spacing:-0.03em;margin-bottom:20px;}
+.mf-p{font-size:16px;color:var(--g600);line-height:1.85;margin-bottom:16px;}
+.mf-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:48px;text-align:left;}
+.mf-c{background:var(--g75);border:1px solid var(--g150);border-radius:var(--r2);padding:24px;}
+.mf-c h4{font-size:13px;font-weight:700;margin-bottom:6px;}
+.mf-c p{font-size:13px;color:var(--g600);line-height:1.65;}
+
+/* ═══ CONTENT GRID ═══ */
+.content-sec{border-top:1px solid var(--g150);padding:clamp(48px,6vw,80px) 0;}
+.content-sec.alt{background:var(--g75);}
+.sh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:32px;flex-wrap:wrap;gap:12px;}
+.st{font-size:clamp(22px,2.5vw,32px);font-weight:900;letter-spacing:-0.02em;}
+.ss{font-size:13px;color:var(--g500);margin-top:3px;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.card{background:var(--wh);border:1px solid var(--g150);border-radius:var(--r2);overflow:hidden;transition:all 0.2s;cursor:pointer;}
+.card:hover{border-color:var(--g300);box-shadow:0 6px 20px rgba(0,0,0,0.04);transform:translateY(-2px);}
+.c-top{height:120px;background:var(--g100);display:flex;align-items:flex-end;padding:10px 12px;gap:3px;position:relative;}
+.c-bar{flex:1;border-radius:2px 2px 0 0;background:var(--g200);transition:background 0.2s;}
+.card:hover .c-bar{background:var(--purple);opacity:0.45;}
+.c-tag{position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:0.04em;}
+.t-b{background:var(--purple-bg);color:var(--purple);}
+.t-r{background:#FEF7E6;color:#B8860B;}
+.t-s{background:#E6F5EC;color:var(--green);}
+.c-bd{padding:14px 16px 16px;}
+.c-meta{font-size:9px;color:var(--g500);margin-bottom:6px;display:flex;gap:5px;align-items:center;}
+.pl{font-size:9px;font-weight:600;padding:2px 6px;border-radius:100px;background:var(--g75);color:var(--g700);border:1px solid var(--g150);}
+.c-ti{font-size:15px;font-weight:700;margin-bottom:4px;line-height:1.3;letter-spacing:-0.01em;}
+.c-de{font-size:12px;color:var(--g500);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-ft{display:flex;justify-content:space-between;align-items:flex-end;}
+.c-s{font-size:22px;font-weight:900;color:var(--blk);letter-spacing:-0.02em;line-height:1;}
+.c-sl{font-size:9px;color:var(--g500);margin-top:2px;}
+.c-lk{font-size:12px;color:var(--blk);font-weight:600;}
+.c-lk::after{content:' →';}
+
+/* Video cards */
+.vc{background:var(--wh);border:1px solid var(--g150);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.vc:hover{box-shadow:0 6px 20px rgba(0,0,0,0.04);transform:translateY(-2px);}
+.vc-th{height:150px;background:var(--blk);position:relative;display:flex;align-items:center;justify-content:center;}
+.vc-th::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,111,232,0.08),rgba(0,0,0,0.12));}
+.vc-pl{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.vc-pl::after{content:'';border-left:12px solid var(--blk);border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:2px;}
+.vc-du{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);color:var(--wh);font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;z-index:2;}
+.vc-bd{padding:12px 14px;}
+.vc-ti{font-size:14px;font-weight:700;margin-bottom:3px;line-height:1.3;}
+.tabs{display:flex;gap:0;margin-bottom:32px;border-bottom:1px solid var(--g200);}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.12s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;}
+.tab:hover{color:var(--blk);}.tab.on{color:var(--blk);border-bottom-color:var(--blk);}
+
+/* ═══ SUBSCRIBE ═══ */
+.sub{background:var(--blk);padding:clamp(48px,6vw,80px) 0;}
+.sub-inner{max-width:var(--max);margin:0 auto;padding:0 var(--px);display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;}
+.sub-text h3{font-size:clamp(22px,2.5vw,30px);font-weight:900;color:var(--wh);letter-spacing:-0.02em;margin-bottom:6px;}
+.sub-text p{font-size:14px;color:var(--g500);}
+.sub-form{display:flex;gap:8px;}
+.sub-in{background:var(--blk2);border:1px solid var(--blk4);color:var(--wh);font-size:14px;padding:12px 16px;border-radius:8px;outline:none;font-family:inherit;width:280px;}
+.sub-in:focus{border-color:var(--lime);}
+
+footer{background:var(--g75);border-top:1px solid var(--g150);padding:24px var(--px);}
+.foot-inner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;align-items:center;}
+footer p{font-size:11px;color:var(--g500);}
+footer a{color:var(--g500);text-decoration:none;font-size:11px;margin-left:18px;}
+
+/* About */
+.ab-s{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.ab-s>div{background:var(--g75);border:1px solid var(--g150);border-radius:var(--r2);padding:20px;text-align:center;}
+.ab-s span{font-size:clamp(32px,4vw,48px);font-weight:900;letter-spacing:-0.03em;display:block;line-height:1;}
+.ab-card{background:var(--g75);border:1px solid var(--g150);border-radius:var(--r2);padding:24px;margin-bottom:12px;}
+.ab-card h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--g500);margin-bottom:10px;}
+.ab-card p{font-size:14px;color:var(--g600);line-height:1.75;}
+
+.no-res{text-align:center;padding:48px 20px;color:var(--g400);font-size:13px;}
+
+@media(max-width:960px){
+  .n-center{display:none;}.n-right .btn-ol2{display:none;}
+  .feat-grid{grid-template-columns:1fr;min-height:auto;}.feat-side{grid-template-rows:auto auto;}
+  .exp-split{grid-template-columns:1fr;}
+  .mf-grid{grid-template-columns:1fr;}
+  .ab-s{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .cr{grid-template-columns:80px 1fr 36px;gap:6px;}
+  .sub-inner{flex-direction:column;text-align:center;}.sub-form{width:100%;}.sub-in{flex:1;}
+}
+</style>
+</head>
+<body>
+<div class="tt" id="tt"></div>
+
+<!-- NAV -->
+<div class="nav-wrap">
+  <nav class="nav-main">
+    <a class="n-logo" href="#">BUILDOTS</a>
+    <div class="n-sep"></div>
+    <div class="n-lab">
+      <svg class="n-lab-mark" width="24" height="24" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="8" fill="#1C1C1C"/>
+        <path d="M10 13L18 8L26 13V23L18 28L26 23" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M10 13L18 18L26 13" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+        <path d="M18 18V28" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+        <circle cx="18" cy="18" r="2.5" fill="#D4E94F"/>
+        <path d="M10 13V23L18 28" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span class="n-lab-text">Intelligence Lab</span>
+    </div>
+    <div class="n-center">
+      <a onclick="go('home')" class="on" id="n-home">Home</a>
+      <a onclick="go('explore')" id="n-exp">Explore</a>
+      <a onclick="go('hub')" id="n-hub">Resources</a>
+      <a onclick="go('about')" id="n-abt">About</a>
+    </div>
+    <div class="n-right">
+      <div class="n-search" id="nSearch">
+        <button class="n-search-btn" onclick="toggleSearch()" aria-label="Search">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <div class="n-search-box" id="nSearchBox">
+          <svg class="n-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <input class="n-search-in" id="nSearchIn" type="text" placeholder="Search benchmarks, insights, reports…" oninput="doSearch(this.value)">
+          <button class="n-search-close" onclick="toggleSearch()">✕</button>
+          <div class="n-search-results" id="nSearchRes"></div>
+        </div>
+      </div>
+      <button class="btn-lime">Get a demo</button>
+    </div>
+  </nav>
+  <div class="cat-nav" id="catNav">
+    <div class="cat-inner">
+      <span class="cat-label">Region</span>
+      <button class="cat-chip on" onclick="sC('r','All',this)">All</button>
+      <button class="cat-chip" onclick="sC('r','UK',this)">UK</button>
+      <button class="cat-chip" onclick="sC('r','NA',this)">North America</button>
+      <button class="cat-chip" onclick="sC('r','Nordics',this)">Nordics</button>
+      <button class="cat-chip" onclick="sC('r','Israel',this)">Israel</button>
+      <div class="cat-div"></div>
+      <span class="cat-label">Project type</span>
+      <button class="cat-chip on" onclick="sC('v','All',this)">All</button>
+      <button class="cat-chip" onclick="sC('v','Healthcare',this)">Healthcare</button>
+      <button class="cat-chip" onclick="sC('v','Commercial',this)">Commercial</button>
+      <button class="cat-chip" onclick="sC('v','Data Centres',this)">Data Centres</button>
+      <button class="cat-chip" onclick="sC('v','Residential',this)">Residential</button>
+      <button class="cat-chip" onclick="sC('v','Industrial',this)">Industrial</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HOME ═══════════ -->
+<section id="home" class="active">
+
+<!-- HERO -->
+<div class="hero si">
+  <div class="hero-grid">
+    <div class="hero-inner">
+      <div class="lab-brand">
+        <svg class="lab-logo" width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="8" fill="#1C1C1C"/>
+          <path d="M10 13L18 8L26 13V23L18 28L26 23" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M10 13L18 18L26 13" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+          <path d="M18 18V28" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+          <circle cx="18" cy="18" r="2.5" fill="#D4E94F"/>
+          <path d="M10 13V23L18 28" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div class="lab-brand-text">
+          <span class="lab-brand-name">Construction Intelligence Lab</span>
+          <span class="lab-brand-by">by Buildots</span>
+        </div>
+      </div>
+      <h1 class="h1">See what the<br>industry can't.</h1>
+      <p class="h-p">Production benchmarks, performance metrics, and data-driven insights that reveal how construction really works — and where it can be better.</p>
+      <div class="h-actions">
+        <button class="btn-blk" onclick="go('explore')">Explore the data <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="btn-ol" onclick="go('about')">About the Lab</button>
+      </div>
+    </div>
+    <div class="hero-vis">
+      <div class="hv-card" id="hvCard">
+        <div class="hv-header">
+          <span class="hv-title">Production Benchmark</span>
+          <span class="hv-badge">Live data</span>
+        </div>
+        <div id="hvRows"></div>
+        <div class="hv-footer">
+          <div class="hv-legend"><div class="hv-legend-d" style="background:var(--purple);"></div> Planned</div>
+          <div class="hv-legend"><div class="hv-legend-d" style="background:var(--red);"></div> Actual</div>
+          <span style="margin-left:auto;font-size:9px;color:var(--g500);">11 projects · UK Healthcare</span>
+        </div>
+      </div>
+      <div class="hv-glow"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURED CONTENT -->
+<div class="feat si">
+  <div class="feat-grid">
+    <div class="feat-main">
+      <div class="fm-tag">Featured Report</div>
+      <h2 class="fm-h">Why identical activities are planned at 2× different rates</h2>
+      <p class="fm-p">Same trade, same system, comparable projects — yet planned production varies by a factor of two. A deep investigation into what's driving this.</p>
+      <div class="fm-meta">Buildots Research · February 2026</div>
+      <div class="fm-cta">Read the report →</div>
+    </div>
+    <div class="feat-side">
+      <div class="feat-card">
+        <div class="fc-tag">Data Insight</div>
+        <div class="fc-stat">1 in 5</div>
+        <div class="fc-h">The phenomenon of zero-progress weeks</div>
+        <div class="fc-p">One in five project weeks shows zero output for at least one trade.</div>
+      </div>
+      <div class="feat-card">
+        <div class="fc-tag">Latest Benchmark</div>
+        <div class="fc-h">How fast are UK healthcare projects really building?</div>
+        <div class="fc-p">Industry-first production benchmarks for envelope and finish trades across 11 UK projects.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA EXPLORER (mid-page) -->
+<div class="explorer">
+  <div class="si">
+    <div class="exp-split">
+      <div class="exp-text">
+        <div class="exp-ey">PRODUCTION DATA</div>
+        <h2>Every decision, backed by evidence.</h2>
+        <p>We measure construction performance in ways the industry never has — through production benchmarks, vertical-specific metrics, and insights that reveal the patterns behind project outcomes.</p>
+        <div class="exp-stats">
+          <div class="exp-st"><div class="exp-sv neg" id="hSF">−38%</div><div class="exp-sl">Avg. plan vs. actual gap</div></div>
+          <div class="exp-st"><div class="exp-sv">2×</div><div class="exp-sl">Rate variability across comparable projects</div></div>
+        </div>
+        <button class="btn-blk" onclick="go('explore')">Full data explorer <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="exp-chart-wrap">
+        <div class="cc">
+          <div class="tg" id="tv"><button class="tb on" onclick="sV('Healthcare',this)">Healthcare</button><button class="tb" onclick="sV('Commercial',this)">Commercial</button><button class="tb" onclick="sV('Data Centres',this)">Data Centres</button><button class="tb" onclick="sV('Residential',this)">Residential</button></div>
+          <div class="tg" id="tg2"><button class="tb on" onclick="sG('UK',this)">UK</button><button class="tb" onclick="sG('North America',this)">NA</button><button class="tb" onclick="sG('Nordics',this)">Nordics</button><button class="tb" onclick="sG('Israel',this)">Israel</button></div>
+        </div>
+        <div class="cl">
+          <div class="cl-i"><div class="cl-d" style="background:var(--purple);"></div> <b style="color:var(--purple);">Planned</b></div>
+          <div class="cl-i"><div class="cl-d" style="background:var(--red);"></div> Actual</div>
+          <div class="cl-i"><div class="cl-bar" style="background:var(--g300);"></div> Range</div>
+          <span style="margin-left:auto;font-size:9px;color:var(--g400);" id="hM"></span>
+        </div>
+        <div id="hC"></div><div id="hX"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MANIFESTO -->
+<div class="mf si">
+  <div class="mf-inner">
+    <div class="mf-ey">THE MISSION</div>
+    <h2 class="mf-h">New ways to measure. New ways to improve.</h2>
+    <p class="mf-p">The construction industry makes its most critical decisions with almost no reliable performance data. The Intelligence Lab exists to change that — specialising in finding new ways to measure construction performance that shed light on the phenomena that hold projects back, and reveal the opportunities to improve.</p>
+  </div>
+  <div class="mf-grid" style="max-width:var(--max);margin-left:auto;margin-right:auto;">
+    <div class="mf-c"><h4>📊 Production Benchmarks</h4><p>How fast are trades really installing across different verticals and geographies? We measure it so you don't have to guess.</p></div>
+    <div class="mf-c"><h4>🔬 Industry Metrics</h4><p>WIP levels, floor cycle times, first-pass-complete rates — vertical-specific KPIs that matter to the people running projects.</p></div>
+    <div class="mf-c"><h4>💡 Unique Insights</h4><p>Patterns that only emerge when you have the data nobody else has. The discoveries that change how the industry thinks.</p></div>
+  </div>
+</div>
+
+<!-- LATEST FROM THE LAB -->
+<div class="content-sec alt">
+  <div class="si">
+    <div class="sh"><div><div class="st">Latest from the Lab</div><div class="ss">Benchmarks, insights, and research across the industry</div></div><button class="btn-ol" onclick="go('explore')" style="font-size:12px;padding:9px 16px;">View all →</button></div>
+    <div class="cg" id="hCards"></div>
+    <div class="no-res" id="hCards-e" style="display:none;">No content yet for this combination — stay tuned.</div>
+  </div>
+</div>
+
+<!-- RESOURCES -->
+<div class="content-sec">
+  <div class="si">
+    <div class="sh"><div><div class="st">Resources</div><div class="ss">Deep-dives, analysis, and conversations about what the data reveals</div></div><button class="btn-ol" onclick="go('hub')" style="font-size:12px;padding:9px 16px;">View all →</button></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;" id="hV"></div>
+  </div>
+</div>
+
+<!-- SUBSCRIBE -->
+<div class="sub">
+  <div class="sub-inner">
+    <div class="sub-text"><h3>Stay ahead of the curve.</h3><p>New benchmarks, metrics, and insights — delivered when they matter.</p></div>
+    <div class="sub-form"><input class="sub-in" type="email" placeholder="your@email.com"><button class="btn-lime">Subscribe</button></div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════ EXPLORE ═══════════ -->
+<section id="explore"><div class="si" style="padding-top:48px;padding-bottom:48px;">
+  <div style="background:var(--g100);padding:clamp(28px,3vw,40px);border-radius:var(--r3);margin-bottom:32px;">
+    <h2 style="font-size:clamp(22px,2.5vw,28px);font-weight:900;letter-spacing:-0.02em;margin-bottom:6px;">Production Performance Explorer</h2>
+    <p style="font-size:14px;color:var(--g600);margin-bottom:20px;max-width:520px;">Investigate how construction trades perform. Hover any row for detail.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div class="tg" id="ev"><button class="tb on" onclick="eV('Healthcare',this)">Healthcare</button><button class="tb" onclick="eV('Commercial',this)">Commercial</button><button class="tb" onclick="eV('Data Centres',this)">Data Centres</button><button class="tb" onclick="eV('Residential',this)">Residential</button></div>
+      <div class="tg" id="eg"><button class="tb on" onclick="eG('UK',this)">UK</button><button class="tb" onclick="eG('North America',this)">NA</button><button class="tb" onclick="eG('Nordics',this)">Nordics</button><button class="tb" onclick="eG('Israel',this)">Israel</button></div>
+      <div class="tg" id="eu"><button class="tb on" onclick="eU('m',this)">Metric</button><button class="tb" onclick="eU('i',this)">Imperial</button></div>
+    </div>
+  </div>
+  <div class="exp-chart-wrap" style="margin-bottom:24px;">
+    <div class="cl" style="margin-bottom:16px;"><div class="cl-i"><div class="cl-d" style="background:var(--purple);"></div> <b style="color:var(--purple);">Planned</b> (25th | <b>50th</b> | 75th)</div><div class="cl-i"><div class="cl-d" style="background:var(--red);"></div> <b style="color:var(--red);">Actual</b> (25th | <b>50th</b> | 75th)</div><span style="margin-left:auto;font-size:9px;color:var(--g400);" id="eM"></span></div>
+    <div id="eC"></div><div id="eX"></div>
+  </div>
+  <div style="background:var(--g75);border:1px solid var(--g150);border-radius:var(--r2);padding:20px;margin-bottom:48px;" id="eSW"><div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">So what does this mean?</div><p style="font-size:14px;color:var(--g600);line-height:1.75;"></p></div>
+  <div class="st" style="margin-bottom:16px;">All Published Content</div>
+  <div class="cg" id="eCards"></div>
+</div></section>
+
+<!-- ═══════════ HUB ═══════════ -->
+<section id="hub"><div class="si" style="padding-top:48px;padding-bottom:48px;">
+  <div class="st">Resources</div><div class="ss" style="margin-bottom:8px;">Videos, articles, reports, and webinars</div>
+  <div class="tabs"><button class="tab on" onclick="sHT('all',this)">All</button><button class="tab" onclick="sHT('video',this)">Videos</button><button class="tab" onclick="sHT('article',this)">Articles</button><button class="tab" onclick="sHT('report',this)">Reports</button></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;" id="hubG"></div>
+</div></section>
+
+<!-- ═══════════ ABOUT ═══════════ -->
+<section id="about"><div class="si" style="padding-top:48px;padding-bottom:48px;">
+  <div class="st">About the Intelligence Lab</div><div class="ss" style="margin-bottom:36px;">How we investigate construction performance — and why it matters.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+    <div class="ab-card" style="grid-column:span 2;background:var(--warm);"><h3>The Mission</h3><p>The Intelligence Lab is dedicated to finding new ways to measure construction performance. Through production benchmarks, industry-specific metrics, and deep data investigation, we shed light on the phenomena that hold projects back — and reveal the opportunities to improve.</p></div>
+    <div class="ab-card"><h3>The Data</h3><p>The largest construction performance dataset in existence: activity-level granularity across 10+ verticals and 8+ countries, with both planned and actual outcomes. Impossible to replicate.</p></div>
+    <div class="ab-card"><h3>Methodology</h3><p>Min. 4 projects per data point. 25th/50th/75th percentiles. All data aggregated and anonymised. We always show our working.</p></div>
+  </div>
+  <div class="ab-s">
+    <div><span>250+</span><p style="font-size:11px;color:var(--g500);margin-top:4px;">Projects</p></div>
+    <div><span>2×</span><p style="font-size:11px;color:var(--g500);margin-top:4px;">Rate variability</p></div>
+    <div><span>2018</span><p style="font-size:11px;color:var(--g500);margin-top:4px;">Earliest data</p></div>
+    <div><span style="color:var(--red);">−38%</span><p style="font-size:11px;color:var(--g500);margin-top:4px;">Plan vs. actual</p></div>
+  </div>
+  <div class="ab-card"><h3>The Team</h3><p><strong>Amir Berman</strong> — Head of Intelligence Lab<br><strong>Construction Intelligence Researcher</strong> — Data research & analysis<br><strong>Data Analyst</strong> — Infrastructure & tooling<br><br><a href="#" style="color:var(--blk);font-weight:600;">Contact us →</a></p></div>
+</div></section>
+
+<footer><div class="foot-inner"><div style="display:flex;align-items:center;gap:10px;"><svg width="20" height="20" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#1C1C1C"/><path d="M10 13L18 8L26 13V23L18 28L26 23" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round"/><path d="M10 13L18 18L26 13" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round" opacity="0.5"/><path d="M18 18V28" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round" opacity="0.5"/><circle cx="18" cy="18" r="2.5" fill="#D4E94F"/><path d="M10 13V23L18 28" stroke="#7B6FE8" stroke-width="2" stroke-linejoin="round"/></svg><p>© 2026 Buildots Intelligence Lab</p></div><div><a href="#">Privacy</a><a href="#">Legal</a></div></div></footer>
+
+<script>
+let cV='Healthcare',cG='UK',xV='Healthcare',xG='UK',xU='m',cR='All',cVt='All';
+const D={
+'Healthcare-UK':{m:'11 projects · 2021–2025',r:[{l:'HVAC System',p25:352,p50:594,p75:776,a:356,u:'m/wk'},{l:'Domestic Water',p25:302,p50:571,p75:808,a:371,u:'m/wk'},{l:'Radiant System',p25:275,p50:336,p75:410,a:235,u:'m/wk'},{l:'Electrical Cont.',p25:176,p50:297,p75:318,a:184,u:'m/wk'}]},
+'Healthcare-North America':{m:'6 projects · 2020–2025',r:[{l:'HVAC System',p25:165,p50:507,p75:810,a:304,u:'m/wk'},{l:'Domestic Water',p25:127,p50:326,p75:560,a:212,u:'m/wk'},{l:'Medical Gas',p25:107,p50:199,p75:210,a:139,u:'m/wk'}]},
+'Healthcare-Nordics':{m:'5 projects · 2022–2025',r:[{l:'HVAC System',p25:310,p50:520,p75:690,a:338,u:'m/wk'},{l:'Domestic Water',p25:270,p50:480,p75:640,a:312,u:'m/wk'},{l:'Electrical Cont.',p25:160,p50:270,p75:340,a:178,u:'m/wk'}]},
+'Healthcare-Israel':{m:'4 projects · 2023–2025',r:[{l:'HVAC System',p25:280,p50:460,p75:610,a:299,u:'m/wk'},{l:'Domestic Water',p25:220,p50:390,p75:530,a:253,u:'m/wk'},{l:'Electrical Cont.',p25:140,p50:240,p75:310,a:156,u:'m/wk'}]},
+'Commercial-UK':{m:'9 projects · 2020–2025',r:[{l:'Suspended Ceilings',p25:450,p50:820,p75:1240,a:574,u:'sqm/wk'},{l:'Drywall / SFS',p25:600,p50:1100,p75:1600,a:770,u:'sqm/wk'},{l:'Raised Flooring',p25:310,p50:580,p75:890,a:406,u:'sqm/wk'}]},
+'Commercial-North America':{m:'7 projects · 2021–2025',r:[{l:'Suspended Ceilings',p25:420,p50:780,p75:1190,a:507,u:'sqm/wk'},{l:'Drywall / SFS',p25:550,p50:1020,p75:1480,a:663,u:'sqm/wk'}]},
+'Commercial-Nordics':{m:'4 projects · 2022–2025',r:[{l:'Suspended Ceilings',p25:400,p50:720,p75:1100,a:468,u:'sqm/wk'}]},
+'Commercial-Israel':{m:'5 projects · 2023–2025',r:[{l:'Suspended Ceilings',p25:380,p50:690,p75:1050,a:448,u:'sqm/wk'},{l:'Drywall / SFS',p25:480,p50:900,p75:1320,a:585,u:'sqm/wk'}]},
+'Data Centres-UK':{m:'8 projects · 2020–2025',r:[{l:'HVAC / Cooling',p25:410,p50:680,p75:990,a:374,u:'m/wk'},{l:'Electrical Cont.',p25:280,p50:490,p75:720,a:274,u:'m/wk'},{l:'Domestic Water',p25:195,p50:340,p75:510,a:221,u:'m/wk'}]},
+'Data Centres-North America':{m:'7 projects · 2021–2025',r:[{l:'HVAC / Cooling',p25:297,p50:688,p75:1254,a:413,u:'m/wk'},{l:'Electrical Cont.',p25:195,p50:446,p75:762,a:268,u:'m/wk'}]},
+'Data Centres-Nordics':{m:'4 projects · 2023–2025',r:[{l:'HVAC / Cooling',p25:380,p50:630,p75:920,a:378,u:'m/wk'},{l:'Electrical Cont.',p25:250,p50:440,p75:650,a:286,u:'m/wk'}]},
+'Data Centres-Israel':{m:'4 projects · 2024–2025',r:[{l:'HVAC / Cooling',p25:350,p50:580,p75:840,a:348,u:'m/wk'}]},
+'Residential-UK':{m:'10 projects · 2019–2025',r:[{l:'Drywall',p25:800,p50:1200,p75:1800,a:840,u:'sqm/wk'},{l:'Wall Finishes',p25:400,p50:720,p75:1060,a:504,u:'sqm/wk'},{l:'MEP Rough-In',p25:180,p50:280,p75:420,a:182,u:'m/wk'}]},
+'Residential-North America':{m:'6 projects · 2021–2025',r:[{l:'Drywall',p25:762,p50:1161,p75:1747,a:813,u:'sqm/wk'},{l:'Wall Finishes',p25:370,p50:670,p75:980,a:469,u:'sqm/wk'}]},
+'Residential-Nordics':{m:'5 projects · 2022–2025',r:[{l:'Drywall',p25:750,p50:1140,p75:1680,a:798,u:'sqm/wk'}]},
+'Residential-Israel':{m:'6 projects · 2022–2025',r:[{l:'Drywall',p25:700,p50:1080,p75:1580,a:756,u:'sqm/wk'},{l:'Wall Finishes',p25:350,p50:640,p75:920,a:448,u:'sqm/wk'}]},
+};
+const gM=(u,s)=>s==='i'?(u==='m/wk'?3.281:u==='sqm/wk'?10.764:1):1;
+const gU=(u,s)=>s==='i'?(u==='m/wk'?'ft/wk':u==='sqm/wk'?'sq ft/wk':u):u;
+const f=n=>n==null?'':Math.round(n).toLocaleString();
+
+function rC(tgt,xa,v,g,u){
+  const d=D[v+'-'+g];
+  if(!d){tgt.innerHTML='<div class="no-res">Data coming soon.</div>';xa.innerHTML='';return null;}
+  let mx=0;d.r.forEach(r=>{mx=Math.max(mx,r.p75*gM(r.u,u));});mx*=1.15;
+  let h='';
+  d.r.forEach((r,i)=>{
+    const m=gM(r.u,u),un=gU(r.u,u),p25=r.p25*m,p50=r.p50*m,p75=r.p75*m,a=r.a*m;
+    const c=v=>((v/mx)*100).toFixed(1);
+    const rw=(((p75-p25)/mx)*100).toFixed(1);
+    const sf=((a-p50)/p50*100).toFixed(0),sc=sf<0?'neg':'pos';
+    // Estimate actual range (narrower than planned)
+    const a25=r.a*0.72*m, a75=r.a*1.18*m;
+    const arw=(((a75-a25)/mx)*100).toFixed(1);
+    h+=`<div class="cr-group" onmouseenter="sT(event,'${r.l}','${f(p25)}','${f(p50)}','${f(p75)}','${f(a)}','${un}','${sf}%')" onmouseleave="hT()">
+      <div class="cr">
+        <div class="cr-l">${r.l} — <span style="color:var(--purple);font-weight:700;">planned</span></div>
+        <div class="cr-t">
+          <div class="cr-rg" style="left:${c(p25)}%;width:${rw}%"></div>
+          <div class="cr-25" style="left:${c(p25)}%"></div>
+          <div class="cr-75" style="left:${c(p75)}%"></div>
+          <div class="cr-50" style="left:${c(p50)}%"><div class="cr-v top">${f(p50)}</div></div>
+        </div>
+        <div class="cr-sf" style="color:var(--g400);font-weight:500;font-size:10px;"></div>
+      </div>
+      <div class="cr cr-actual-row">
+        <div class="cr-l">${r.l} — <span style="color:var(--red);font-weight:700;">actual</span></div>
+        <div class="cr-t">
+          <div class="cr-rg cr-rg-a" style="left:${c(a25)}%;width:${arw}%"></div>
+          <div class="cr-a25" style="left:${c(a25)}%"></div>
+          <div class="cr-a75" style="left:${c(a75)}%"></div>
+          <div class="cr-a" style="left:${c(a)}%"><div class="cr-v bot">${f(a)}</div></div>
+        </div>
+        <div class="cr-sf ${sc}">${sf>0?'+':''}${sf}%</div>
+      </div>
+    </div>`;
+  });
+  tgt.innerHTML=h;
+  let xh=`<div class="cx"><div></div><div class="cx-i">`;
+  for(let i=0;i<=5;i++)xh+=`<span>${f(mx/5*i)}</span>`;
+  xh+=`</div><div></div></div>`;
+  xa.innerHTML=xh;return d;
+}
+function sT(e,n,p25,p50,p75,a,u,sf){const t=document.getElementById('tt');t.innerHTML=`<div class="tt-n">${n}</div><div class="tt-r"><span><span class="tt-dot" style="background:var(--purple);"></span>Planned</span><span style="font-weight:700;color:var(--purple);">${p50} ${u}</span></div><div class="tt-r"><span><span class="tt-dot" style="background:var(--red);"></span>Actual</span><span style="font-weight:700;color:var(--red);">${a} ${u}</span></div><div style="height:1px;background:var(--g100);margin:4px 0;"></div><div class="tt-r"><span>Gap</span><span style="font-weight:700;color:${parseFloat(sf)<0?'var(--red)':'var(--green)'};">${sf}</span></div><div class="tt-r"><span>Range</span><span>${p25}–${p75} ${u}</span></div>`;t.style.display='block';pT(e);}
+function hT(){document.getElementById('tt').style.display='none';}
+function pT(e){const t=document.getElementById('tt'),r=t.getBoundingClientRect();let x=e.clientX+14,y=e.clientY-16;if(x+r.width>innerWidth-12)x=e.clientX-r.width-14;if(y+r.height>innerHeight-12)y=e.clientY-r.height+8;t.style.left=x+'px';t.style.top=y+'px';}
+document.addEventListener('mousemove',e=>{if(document.getElementById('tt').style.display==='block')pT(e);});
+
+function rH(){const d=rC(document.getElementById('hC'),document.getElementById('hX'),cV,cG,'m');document.getElementById('hM').textContent=d?d.m:'';if(d)document.getElementById('hSF').textContent=Math.round(d.r.reduce((s,r)=>s+((r.a-r.p50)/r.p50*100),0)/d.r.length)+'%';}
+function sV(v,el){cV=v;document.querySelectorAll('#tv .tb').forEach(b=>b.classList.remove('on'));el.classList.add('on');rH();}
+function sG(g,el){cG=g;document.querySelectorAll('#tg2 .tb').forEach(b=>b.classList.remove('on'));el.classList.add('on');rH();}
+function rE(){const d=rC(document.getElementById('eC'),document.getElementById('eX'),xV,xG,xU);document.getElementById('eM').textContent=d?d.m:'';if(d){const a=Math.round(d.r.reduce((s,r)=>s+((r.a-r.p50)/r.p50*100),0)/d.r.length);document.getElementById('eSW').querySelector('p').innerHTML=`Across ${xV} projects in ${xG}, the data reveals an average production gap of <strong>${a}%</strong> between what was planned and what was installed. This is one of many patterns the Lab investigates — understanding <em>why</em> these gaps exist is what leads to better planning and better outcomes.`;}document.getElementById('eCards').innerHTML=CD.map(c=>cH(c)).join('');}
+function eV(v,el){xV=v;document.querySelectorAll('#ev .tb').forEach(b=>b.classList.remove('on'));el.classList.add('on');rE();}
+function eG(g,el){xG=g;document.querySelectorAll('#eg .tb').forEach(b=>b.classList.remove('on'));el.classList.add('on');rE();}
+function eU(u,el){xU=u;document.querySelectorAll('#eu .tb').forEach(b=>b.classList.remove('on'));el.classList.add('on');rE();}
+
+const CD=[
+{t:'Benchmark',v:'Healthcare',g:'UK',d:'Mar 2026',ti:'How fast are UK healthcare projects really building?',de:'Industry-first production benchmarks for envelope and finish trades.',st:'1,641',sl:'Median sqm/wk',b:[40,55,75,25,15]},
+{t:'Benchmark',v:'Healthcare',g:'NA',d:'Mar 2026',ti:'NA Healthcare: MEP installation speeds benchmarked',de:'MEP production rates measured across North American healthcare.',st:'5,458',sl:'Median ft/wk',b:[80,45,30,18,15]},
+{t:'Benchmark',v:'Data Centres',g:'UK',d:'Feb 2026',ti:'Data Centre MEP: The UK performance baseline',de:'How quickly are MEP systems being installed in UK data centres?',st:'680',sl:'Median m/wk',b:[60,45,30,20]},
+{t:'Snippet',v:'Data Centres',g:'NA',d:'Feb 2026',ti:'Three trades consistently underperforming',de:'Specific MEP trades are falling 40%+ behind required pace.',st:'−40%',sl:'Avg. shortfall',b:[70,55,40,30]},
+{t:'Snippet',v:'Healthcare',g:'UK',d:'Jan 2026',ti:'The phenomenon of zero-progress weeks',de:'One in five weeks shows zero output for at least one trade.',st:'1 in 5',sl:'Zero-progress weeks',b:[20,40,60,45,30]},
+{t:'Report',v:'Healthcare',g:'UK',d:'Jan 2026',ti:'What separates UK and NA projects?',de:'WIP levels and completion rates compared across geographies.',st:'2×',sl:'WIP difference',b:[30,50,70,60,40]},
+{t:'Report',v:'Data Centres',g:'NA',d:'Feb 2026',ti:'Why identical activities are planned at 2× different rates',de:'Same trade, comparable projects — production varies by 2×.',st:'2×',sl:'Variability',b:[40,65,80,55,35]},
+{t:'Benchmark',v:'Residential',g:'UK',d:'Mar 2026',ti:'Floor cycle times: How UK towers compare',de:'The defining metric for high-rise delivery — measured for the first time.',st:'12',sl:'Median days/floor',b:[35,50,65,40]},
+{t:'Snippet',v:'Commercial',g:'UK',d:'Feb 2026',ti:'Ceiling vs. flooring: The speed gap',de:'Suspended ceilings install at 1.4× the rate of raised flooring.',st:'1.4×',sl:'Speed ratio',b:[55,40,65,30]},
+{t:'Benchmark',v:'Residential',g:'Nordics',d:'Feb 2026',ti:'Nordic residential drywall benchmarks',de:'First benchmarks for Nordic residential high-rise projects.',st:'1,140',sl:'Median sqm/wk',b:[45,60,50,30]},
+{t:'Snippet',v:'Industrial',g:'NA',d:'Jan 2026',ti:'Industrial MEP: The hardest to predict',de:'Industrial projects show the widest variability in production.',st:'3.2×',sl:'Rate variability',b:[30,70,45,55]},
+{t:'Benchmark',v:'Data Centres',g:'Israel',d:'Mar 2026',ti:'Israel data centres: First benchmarks',de:'Electrical containment rates in Israeli data centre projects.',st:'400',sl:'Median m/wk',b:[40,55,35]},
+];
+const RS=[
+{t:'video',ti:'What happens when you measure what nobody measures?',de:'Rethinking construction performance.',du:'12:34',d:'Mar 2026',th:'hsl(250,30%,20%)'},
+{t:'video',ti:'How to read a production benchmark',de:'A practical guide to using our data.',du:'8:21',d:'Feb 2026',th:'hsl(220,25%,18%)'},
+{t:'video',ti:'The gap between plans and reality',de:'What the data reveals about why projects slip.',du:'15:07',d:'Feb 2026',th:'hsl(280,25%,18%)'},
+{t:'article',ti:'Better models, better intelligence',de:'How BIM configuration drives measurement.',d:'Jan 2026'},
+{t:'article',ti:'Can data solve the labour shortage?',de:'Performance insights reshape workforce strategy.',d:'Dec 2025'},
+{t:'report',ti:'Toward a Productivity Index',de:'Building a single metric for construction efficiency.',d:'Mar 2026'},
+{t:'report',ti:'Healthcare across borders',de:'How geography shapes production performance.',d:'Feb 2026'},
+];
+function cH(c){const tc={Benchmark:'t-b',Report:'t-r',Snippet:'t-s'}[c.t]||'t-s';const bh=c.b.map(x=>Math.max(10,x*1.1)),mx=Math.max(...bh);return`<div class="card"><div class="c-top">${bh.map(h=>`<div class="c-bar" style="height:${(h/mx*76).toFixed(0)}%"></div>`).join('')}<div class="c-tag ${tc}">${c.t}</div></div><div class="c-bd"><div class="c-meta"><span class="pl">${c.v}</span><span class="pl">${c.g}</span><span style="color:var(--g500)">${c.d}</span></div><div class="c-ti">${c.ti}</div><div class="c-de">${c.de}</div><div class="c-ft"><div><span class="c-s">${c.st}</span><span class="c-sl">${c.sl}</span></div><span class="c-lk">Read more</span></div></div></div>`;}
+function vH(r){if(r.t==='video')return`<div class="vc"><div class="vc-th" style="background:${r.th||'var(--blk)'};"><div class="vc-pl"></div><div class="vc-du">${r.du}</div></div><div class="vc-bd"><div class="c-meta"><span class="pl">${r.t}</span><span style="color:var(--g500)">${r.d}</span></div><div class="vc-ti">${r.ti}</div><div style="font-size:11px;color:var(--g500);line-height:1.4;">${r.de}</div></div></div>`;return`<div class="card"><div class="c-top" style="height:64px;background:var(--g75);"><div class="c-tag ${r.t==='report'?'t-r':'t-s'}">${r.t}</div></div><div class="c-bd"><div class="c-meta"><span style="color:var(--g500)">${r.d}</span></div><div class="c-ti">${r.ti}</div><div class="c-de">${r.de}</div><span class="c-lk">Read</span></div></div>`;}
+
+function sC(type,val,el){
+  if(type==='r')cR=val;else cVt=val;
+  el.closest('.cat-inner').querySelectorAll('.cat-chip').forEach(b=>{if((b.getAttribute('onclick')||'').includes(`'${type}'`))b.classList.remove('on');});
+  el.classList.add('on');fHome();
+}
+function fHome(){
+  let fl=CD.filter(c=>{if(cR!=='All'&&c.g!==cR)return false;if(cVt!=='All'&&c.v!==cVt)return false;return true;});
+  document.getElementById('hCards').innerHTML=fl.map(c=>cH(c)).join('');
+  document.getElementById('hCards-e').style.display=fl.length?'none':'block';
+}
+let hTab='all';
+function sHT(t,el){hTab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));el.classList.add('on');rHu();}
+function rHu(){document.getElementById('hubG').innerHTML=(hTab==='all'?RS:RS.filter(r=>r.t===hTab)).map(r=>vH(r)).join('');}
+function rHome(){
+  fHome();
+  document.getElementById('hV').innerHTML=RS.filter(r=>r.t==='video').slice(0,3).map(r=>vH(r)).join('')+RS.filter(r=>r.t==='article').slice(0,1).map(r=>vH(r)).join('');
+}
+function go(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.n-center a').forEach(a=>a.classList.remove('on'));
+  ({home:'n-home',explore:'n-exp',hub:'n-hub',about:'n-abt'})[id]&&document.getElementById(({home:'n-home',explore:'n-exp',hub:'n-hub',about:'n-abt'})[id]).classList.add('on');
+  scrollTo(0,0);
+  if(id==='home'){rHome();rH();}
+  if(id==='explore')rE();
+  if(id==='hub')rHu();
+}
+rH();rHome();rHV();
+
+// Search
+function toggleSearch(){
+  const box=document.getElementById('nSearchBox');
+  const btn=document.querySelector('.n-search-btn');
+  const inp=document.getElementById('nSearchIn');
+  if(box.classList.contains('open')){
+    box.classList.remove('open');btn.style.display='flex';
+    inp.value='';document.getElementById('nSearchRes').className='n-search-results';
+  } else {
+    box.classList.add('open');btn.style.display='none';
+    setTimeout(()=>inp.focus(),220);
+  }
+}
+function doSearch(q){
+  const res=document.getElementById('nSearchRes');
+  if(!q||q.length<2){res.className='n-search-results';return;}
+  const ql=q.toLowerCase();
+  const all=[...CD,...RS.map(r=>({t:r.t,ti:r.ti,de:r.de,v:'',g:''}))];
+  const matches=all.filter(c=>(c.ti||'').toLowerCase().includes(ql)||(c.de||'').toLowerCase().includes(ql)||(c.v||'').toLowerCase().includes(ql));
+  if(!matches.length){res.innerHTML='<div class="nsr-empty">No results for "'+q+'"</div>';res.className='n-search-results show';return;}
+  res.innerHTML=matches.slice(0,6).map(c=>{
+    const tc={Benchmark:'t-b',Report:'t-r',Snippet:'t-s',video:'t-b',article:'t-s',report:'t-r'}[c.t]||'t-s';
+    return`<div class="nsr-item" onclick="toggleSearch()"><div class="nsr-tag ${tc}">${c.t}</div><div class="nsr-text"><div class="nsr-title">${c.ti}</div><div class="nsr-desc">${c.de||''}</div></div></div>`;
+  }).join('');
+  res.className='n-search-results show';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const box=document.getElementById('nSearchBox');if(box.classList.contains('open'))toggleSearch();}if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();const box=document.getElementById('nSearchBox');if(!box.classList.contains('open'))toggleSearch();}});
+
+function rHV(){
+  const rows=[
+    {l:'HVAC',planned:72,actual:43,sf:'-40%'},
+    {l:'Domestic Water',planned:68,actual:44,sf:'-35%'},
+    {l:'Drywall',planned:85,actual:62,sf:'-27%'},
+    {l:'Electrical',planned:58,actual:36,sf:'-38%'},
+    {l:'Medical Gas',planned:42,actual:27,sf:'-36%'},
+  ];
+  let h='';
+  rows.forEach(r=>{
+    h+=`<div class="hv-row">
+      <div class="hv-label">${r.l}</div>
+      <div class="hv-track">
+        <div class="hv-bar-bg"></div>
+        <div class="hv-bar" style="width:${r.planned}%;background:linear-gradient(90deg,rgba(123,111,232,0.2),rgba(123,111,232,0.05));"></div>
+        <div class="hv-dot-p" style="left:calc(${r.planned}% - 7px);"></div>
+        <div class="hv-dot-a" style="left:calc(${r.actual}% - 5px);"></div>
+      </div>
+      <div class="hv-val" style="color:var(--red);font-size:10px;">${r.sf}</div>
+    </div>`;
+  });
+  document.getElementById('hvRows').innerHTML=h;
+}
+</script>
+</body>
+</html>
